@@ -3,18 +3,18 @@ package com.example.myapplication
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.media.AudioAttributes
-import android.net.Uri
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -83,24 +83,18 @@ class MainActivity : AppCompatActivity() {
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).also {
-                //LIGHT
+                //      LIGHT
                 it.enableLights(true)
                 it.lightColor = Color.GREEN
 
-                //SOUND
-                val resourceId = R.raw.birds_notification_sound
-                val soundTrackUri = Uri.Builder()
-                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                    .authority(resources.getResourcePackageName(resourceId))
-                    .appendPath(resources.getResourceTypeName(resourceId))
-                    .appendPath(resources.getResourceEntryName(resourceId))
-                    .build()
+                //      SOUND
+                val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                 val audioAttribute = AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build()
-                it.setSound(soundTrackUri, audioAttribute)
+                it.setSound(ringtoneUri, audioAttribute)
 
-                //VIBRATION
+                //      VIBRATION
                 it.enableVibration(true)
                 // Vibration Pattern if vibration is enabled
                 val vibrationDuration = 1000L
