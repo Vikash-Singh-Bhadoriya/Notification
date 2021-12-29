@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
@@ -13,6 +12,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -36,20 +36,13 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
 
         // Create an explicit intent for an Activity in your app
-        val intent = Intent(this, SecondActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        val intent = Intent(this, SecondActivity::class.java)
+
         // to allow the NotificationManager execute your Intent using your application's permission.
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            PENDING_INTENT_REQUEST_CODE,
-            intent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
-        )
+        val pendingIntent = TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(intent)
+            getPendingIntent(PENDING_INTENT_REQUEST_CODE, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 
         // builder defines your actual Notification
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -67,8 +60,7 @@ class MainActivity : AppCompatActivity() {
             with(NotificationManagerCompat.from(this)) {
                 // notificationId is a unique int for each notification that you must define
                 // if it is the same then it just update the notification with new one
-                val notification = builder.build()
-                notify(NOTIFICATION_ID, notification)
+                notify(NOTIFICATION_ID, builder.build())
             }
         }
     }
@@ -85,7 +77,6 @@ class MainActivity : AppCompatActivity() {
             ).also {
                 //      LIGHT
                 it.enableLights(true)
-                it.lightColor = Color.GREEN
 
                 //      SOUND
                 val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
